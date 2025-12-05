@@ -278,6 +278,13 @@ class SNN_Notes_Ajax {
         $tag_filter = isset($_POST['tag_id']) ? absint($_POST['tag_id']) : 0;
         $sort_by = isset($_POST['sort_by']) ? sanitize_text_field($_POST['sort_by']) : 'modified';
         $sort_order = isset($_POST['sort_order']) ? sanitize_text_field($_POST['sort_order']) : 'DESC';
+        $priority_tag_id = isset($_POST['priority_tag_id']) ? absint($_POST['priority_tag_id']) : 0;
+        if ($priority_tag_id) {
+            $term = get_term($priority_tag_id, 'snn_tag');
+            if ($term && !is_wp_error($term)) {
+                $priority_tag_id = $term->term_taxonomy_id;
+            }
+        }
         
         // Try cache first
         $cache_key = 'snn_notes_' . get_current_user_id() . '_' . md5(serialize($_POST));
@@ -351,12 +358,29 @@ class SNN_Notes_Ajax {
                 'compare' => 'NOT EXISTS',
             ),
         );
+        
         $args['orderby'] = array(
             'meta_value' => 'DESC',
             $args['orderby'] => $args['order'],
         );
+
+        $clauses_filter = null;
+        if ($priority_tag_id) {
+            $clauses_filter = function($clauses) use ($priority_tag_id) {
+                global $wpdb;
+                $clauses['join'] .= " LEFT JOIN {$wpdb->term_relationships} AS snn_tr ON ({$wpdb->posts}.ID = snn_tr.object_id AND snn_tr.term_taxonomy_id = {$priority_tag_id}) ";
+                // Sort by matching tag first (NOT NULL), then existing order
+                $clauses['orderby'] = " (snn_tr.term_taxonomy_id IS NOT NULL) DESC, " . $clauses['orderby'];
+                return $clauses;
+            };
+            add_filter('posts_clauses', $clauses_filter);
+        }
         
         $notes_query = new WP_Query($args);
+
+        if ($clauses_filter) {
+            remove_filter('posts_clauses', $clauses_filter);
+        }
         $notes_data = array();
         
         foreach ($notes_query->posts as $note) {
@@ -380,6 +404,8 @@ class SNN_Notes_Ajax {
                 'is_pinned' => (bool)get_post_meta($note->ID, '_snn_pinned', true),
                 'is_favorite' => (bool)get_post_meta($note->ID, '_snn_favorite', true),
                 'word_count' => $this->get_word_count($note->ID),
+                'revision_count' => (int) wp_get_post_revisions($note->ID, array('fields' => 'ids', 'posts_per_page' => -1)) ? count(wp_get_post_revisions($note->ID)) : 0, // Simplified count check
+                'revision_url' => admin_url('revision.php?revision=' . (wp_get_post_revisions($note->ID, array('posts_per_page' => 1)) ? reset(wp_get_post_revisions($note->ID, array('posts_per_page' => 1)))->ID : '')),
             );
         }
         
@@ -572,7 +598,21 @@ class SNN_Notes_Ajax {
                 'id' => $tag->term_id,
                 'name' => $tag->name,
                 'color' => get_term_meta($tag->term_id, 'color', true) ?: '#3b82f6',
-                'count' => $tag->count,
+                'color' => get_term_meta($tag->term_id, 'color', true) ?: '#3b82f6',
+                'count' => count(get_posts(array(
+                    'post_type' => 'snn_note',
+                    'post_status' => array('private', 'snn_archived'),
+                    'posts_per_page' => -1,
+                    'fields' => 'ids',
+                    'author' => get_current_user_id(),
+                    'tax_query' => array(
+                        array(
+                            'taxonomy' => 'snn_tag',
+                            'field' => 'term_id',
+                            'terms' => $tag->term_id,
+                        ),
+                    ),
+                ))),
             );
         }
         

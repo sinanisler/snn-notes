@@ -290,7 +290,7 @@
             });
         },
 
-        loadNotes: function () {
+        loadNotes: function (options = {}) {
             const self = this;
 
             $.ajax({
@@ -298,7 +298,8 @@
                 type: 'POST',
                 data: {
                     action: 'snn_get_notes',
-                    nonce: snnNotes.nonce
+                    nonce: snnNotes.nonce,
+                    ...options
                 },
                 success: function (response) {
                     if (response.success) {
@@ -325,6 +326,12 @@
                         <div class="snn-note-item-title">${this.escapeHtml(note.title)}</div>
                         <div class="snn-note-item-meta">
                             <span class="snn-note-item-excerpt">${this.escapeHtml(note.excerpt)}</span>
+                            ${note.revision_count > 0 ?
+                        `<a href="${note.revision_url}" target="_blank" class="snn-note-revision-count" style="color: #6b7280; font-size: 12px; margin-right: 8px; text-decoration: none;">
+                                    ${note.revision_count} Revisions
+                                </a>`
+                        : ''
+                    }
                             <span class="snn-note-item-date">${note.date}</span>
                         </div>
                         ${note.tags.length > 0 ? `<div class="snn-note-item-tags">${note.tags.map(tag => `<span class="snn-note-item-tag" style="background-color: ${tag.color}">${this.escapeHtml(tag.name)}</span>`).join('')}</div>` : ''}
@@ -457,6 +464,13 @@
                         </button>
                     </div>
                 `);
+
+                $tagItem.on('click', (e) => {
+                    // If not deleting or dragging
+                    if (!$(e.target).closest('.snn-tag-delete').length) {
+                        this.loadNotes({ priority_tag_id: tag.id });
+                    }
+                });
 
                 $tagItem.find('.snn-tag-delete').on('click', (e) => {
                     e.stopPropagation();
