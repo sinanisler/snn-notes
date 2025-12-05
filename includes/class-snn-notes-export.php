@@ -45,6 +45,11 @@ class SNN_Notes_Export {
         if (!$note || $note->post_type !== 'snn_note') {
             return new WP_Error('not_found', __('Note not found', 'snn-notes'));
         }
+
+        // Security Check
+        if ($note->post_author != get_current_user_id() && !current_user_can('edit_others_posts')) {
+             return new WP_Error('forbidden', __('You do not have permission to export this note', 'snn-notes'));
+        }
         
         $tags = wp_get_post_terms($note_id, 'snn_tag', array('fields' => 'names'));
         

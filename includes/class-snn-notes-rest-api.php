@@ -95,6 +95,11 @@ class SNN_Notes_REST_API {
         if (!$note || $note->post_type !== 'snn_note') {
             return new WP_Error('not_found', __('Note not found', 'snn-notes'), array('status' => 404));
         }
+
+        // Security Check
+        if ($note->post_author != get_current_user_id() && !current_user_can('edit_others_posts')) {
+             return new WP_Error('forbidden', __('You do not have permission to view this note', 'snn-notes'), array('status' => 403));
+        }
         
         return rest_ensure_response($note);
     }

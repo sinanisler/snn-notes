@@ -63,6 +63,23 @@ class SNN_Notes_Ajax {
             exit;
         }
     }
+
+    private function check_ownership($note_id) {
+        $note = get_post($note_id);
+        if (!$note || $note->post_type !== 'snn_note') {
+            wp_send_json_error(__('Note not found', 'snn-notes'), 404);
+            exit;
+        }
+
+        if ($note->post_author != get_current_user_id() && !current_user_can('edit_others_posts')) {
+             // Check shared access if implemented, otherwise strictly deny for "private" note keeping check
+             // The user requirement is "complete private wp-admin only note keeping PER USER"
+             // So we strictly deny unless they are admin editing others
+            wp_send_json_error(__('You do not have permission to access this note', 'snn-notes'), 403);
+            exit;
+        }
+        return $note;
+    }
     
     private function sanitize_note_data($data) {
         return array(
@@ -384,11 +401,7 @@ class SNN_Notes_Ajax {
         $this->verify_request();
         
         $note_id = isset($_POST['note_id']) ? absint($_POST['note_id']) : 0;
-        $note = get_post($note_id);
-        
-        if (!$note || $note->post_type !== 'snn_note') {
-            wp_send_json_error(__('Note not found', 'snn-notes'));
-        }
+        $note = $this->check_ownership($note_id);
         
         $new_note_data = array(
             'post_type' => 'snn_note',
@@ -428,6 +441,7 @@ class SNN_Notes_Ajax {
         $this->verify_request();
         
         $note_id = isset($_POST['note_id']) ? absint($_POST['note_id']) : 0;
+        $this->check_ownership($note_id);
         
         $result = wp_untrash_post($note_id);
         
@@ -444,6 +458,8 @@ class SNN_Notes_Ajax {
         $this->verify_request();
         
         $note_id = isset($_POST['note_id']) ? absint($_POST['note_id']) : 0;
+        $this->check_ownership($note_id);
+        
         $pinned = isset($_POST['pinned']) ? (bool)$_POST['pinned'] : true;
         
         if ($pinned) {
@@ -461,6 +477,8 @@ class SNN_Notes_Ajax {
         $this->verify_request();
         
         $note_id = isset($_POST['note_id']) ? absint($_POST['note_id']) : 0;
+        $this->check_ownership($note_id);
+
         $archived = isset($_POST['archived']) ? (bool)$_POST['archived'] : true;
         
         $new_status = $archived ? 'snn_archived' : 'private';
@@ -495,6 +513,7 @@ class SNN_Notes_Ajax {
         if ($color) {
             update_term_meta($term['term_id'], 'color', $color);
         }
+        update_term_meta($term['term_id'], 'created_by', get_current_user_id());
         
         wp_send_json_success(array(
             'id' => $term['term_id'],
@@ -511,6 +530,13 @@ class SNN_Notes_Ajax {
         }
         
         $tag_id = isset($_POST['tag_id']) ? absint($_POST['tag_id']) : 0;
+        
+        // Check ownership
+        $owner_id = get_term_meta($tag_id, 'created_by', true);
+        if ($owner_id && $owner_id != get_current_user_id() && !current_user_can('delete_others_posts')) {
+             wp_send_json_error(__('You do not have permission to delete this tag', 'snn-notes'), 403);
+        }
+        
         $result = wp_delete_term($tag_id, 'snn_tag');
         
         if (is_wp_error($result)) {
@@ -526,6 +552,18 @@ class SNN_Notes_Ajax {
         $tags = get_terms(array(
             'taxonomy' => 'snn_tag',
             'hide_empty' => false,
+            'meta_query' => array(
+                'relation' => 'OR',
+                array(
+                    'key' => 'created_by',
+                    'value' => get_current_user_id(),
+                    'compare' => '='
+                ),
+                array(
+                    'key' => 'created_by',
+                    'compare' => 'NOT EXISTS' // Backward compatibility or global
+                )
+            )
         ));
         
         $tags_data = array();
@@ -545,6 +583,7 @@ class SNN_Notes_Ajax {
         $this->verify_request();
         
         $note_id = isset($_POST['note_id']) ? absint($_POST['note_id']) : 0;
+        $this->check_ownership($note_id);
         $tag_ids = isset($_POST['tag_ids']) ? array_map('absint', (array)$_POST['tag_ids']) : array();
         
         $result = wp_set_post_terms($note_id, $tag_ids, 'snn_tag');
@@ -634,6 +673,7 @@ class SNN_Notes_Ajax {
         if ($color) {
             update_term_meta($term['term_id'], 'color', $color);
         }
+        update_term_meta($term['term_id'], 'created_by', get_current_user_id());
         
         wp_send_json_success(array(
             'id' => $term['term_id'],
@@ -647,6 +687,13 @@ class SNN_Notes_Ajax {
         $this->verify_request();
         
         $folder_id = isset($_POST['folder_id']) ? absint($_POST['folder_id']) : 0;
+        
+        // Check ownership
+        $owner_id = get_term_meta($folder_id, 'created_by', true);
+        if ($owner_id && $owner_id != get_current_user_id() && !current_user_can('delete_others_posts')) {
+             wp_send_json_error(__('You do not have permission to delete this folder', 'snn-notes'), 403);
+        }
+
         $result = wp_delete_term($folder_id, 'snn_folder');
         
         if (is_wp_error($result)) {
@@ -663,6 +710,18 @@ class SNN_Notes_Ajax {
             'taxonomy' => 'snn_folder',
             'hide_empty' => false,
             'orderby' => 'name',
+            'meta_query' => array(
+                'relation' => 'OR',
+                array(
+                    'key' => 'created_by',
+                    'value' => get_current_user_id(),
+                    'compare' => '='
+                ),
+                array(
+                    'key' => 'created_by',
+                    'compare' => 'NOT EXISTS' // Backward compatibility or global
+                )
+            )
         ));
         
         $folders_data = array();
@@ -683,6 +742,7 @@ class SNN_Notes_Ajax {
         $this->verify_request();
         
         $note_id = isset($_POST['note_id']) ? absint($_POST['note_id']) : 0;
+        $this->check_ownership($note_id);
         $folder_id = isset($_POST['folder_id']) ? absint($_POST['folder_id']) : 0;
         
         if ($folder_id) {
@@ -830,6 +890,16 @@ class SNN_Notes_Ajax {
         $this->verify_request();
         
         $template_id = isset($_POST['template_id']) ? absint($_POST['template_id']) : 0;
+        $template = get_post($template_id);
+        
+        if (!$template || $template->post_type !== 'snn_template') {
+            wp_send_json_error(__('Template not found', 'snn-notes'));
+        }
+        
+        if ($template->post_author != get_current_user_id() && !current_user_can('delete_others_posts')) {
+            wp_send_json_error(__('Unauthorized', 'snn-notes'), 403);
+        }
+
         $result = wp_delete_post($template_id, true);
         
         if (!$result) {

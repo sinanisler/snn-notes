@@ -40,7 +40,7 @@ class SNN_Notes_Post_Type {
             'public' => false,
             'show_ui' => false,
             'show_in_menu' => false,
-            'show_in_rest' => true,
+            'show_in_rest' => false, // Security: Disable default REST API endpoints
             'rest_base' => 'snn-notes',
             'capability_type' => 'post',
             'supports' => array('title', 'editor', 'author', 'revisions'),
