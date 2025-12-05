@@ -1,4 +1,4 @@
-<?php
+<?php 
 /**
  * Plugin Name: SNN Notes
  * Plugin URI: https://sinanisler.com
