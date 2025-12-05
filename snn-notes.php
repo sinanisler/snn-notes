@@ -14,7 +14,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('SNN_NOTES_VERSION', '0.1');
+define('SNN_NOTES_VERSION', '0.2');
 define('SNN_NOTES_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('SNN_NOTES_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -97,6 +97,9 @@ class SNN_Notes {
         
         // SortableJS for drag and drop
         wp_enqueue_script('sortable-js', 'https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js', array(), '1.15.0', true);
+
+        // Quill Image Resize Module
+        wp_enqueue_script('quill-image-resize', 'https://cdn.jsdelivr.net/npm/quill-image-resize-module@3.0.0/image-resize.min.js', array('quill-js'), '3.0.0', true);
         
         // Custom styles
         wp_enqueue_style('snn-notes-css', SNN_NOTES_PLUGIN_URL . 'assets/css/admin-style.css', array(), SNN_NOTES_VERSION);
