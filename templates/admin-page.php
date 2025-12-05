@@ -8,10 +8,10 @@ if (!defined('ABSPATH')) {
     <aside id="snn-sidebar" class="snn-sidebar">
         <div class="snn-sidebar-header">
             <button id="snn-new-note-btn" class="snn-btn snn-btn-primary snn-btn-block">
-                <span class="dashicons dashicons-plus-alt2"></span> New Note
+                <span class="dashicons dashicons-plus-alt2"></span> <?php _e('New Note', 'snn-notes'); ?>
             </button>
             <button id="snn-new-tag-btn" class="snn-btn snn-btn-secondary snn-btn-block">
-                <span class="dashicons dashicons-tag"></span> New Tag
+                <span class="dashicons dashicons-tag"></span> <?php _e('New Tag', 'snn-notes'); ?>
             </button>
         </div>
         
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
             <div class="snn-section-header" id="tags-header">
                 <h3 class="snn-section-title">
                     <span class="dashicons dashicons-arrow-down-alt2 snn-collapse-icon"></span>
-                    Tags
+                    <?php _e('Tags', 'snn-notes'); ?>
                 </h3>
             </div>
             <div class="snn-section-content" id="tags-content">
@@ -33,7 +33,7 @@ if (!defined('ABSPATH')) {
             <div class="snn-section-header" id="notes-header">
                 <h3 class="snn-section-title">
                     <span class="dashicons dashicons-arrow-down-alt2 snn-collapse-icon"></span>
-                    Recent Notes
+                    <?php _e('Recent Notes', 'snn-notes'); ?>
                 </h3>
             </div>
             <div class="snn-section-content" id="notes-content">
@@ -41,7 +41,7 @@ if (!defined('ABSPATH')) {
             </div>
         </div>
         
-        <button id="snn-toggle-sidebar" class="snn-toggle-sidebar" title="Toggle Sidebar">
+        <button id="snn-toggle-sidebar" class="snn-toggle-sidebar" title="<?php esc_attr_e('Toggle Sidebar', 'snn-notes'); ?>">
             <span class="dashicons dashicons-arrow-left-alt2"></span>
         </button>
     </aside>
@@ -52,18 +52,18 @@ if (!defined('ABSPATH')) {
             <div class="snn-welcome-screen">
                 <div class="snn-welcome-content">
                     <span class="dashicons dashicons-edit-page snn-welcome-icon"></span>
-                    <h2>Welcome to SNN Notes</h2>
-                    <p>Create a new note or select an existing one to get started.</p>
+                    <h2><?php _e('Welcome to SNN Notes', 'snn-notes'); ?></h2>
+                    <p><?php _e('Create a new note or select an existing one to get started.', 'snn-notes'); ?></p>
                 </div>
             </div>
             
             <div id="snn-note-editor" class="snn-note-editor" style="display: none;">
                 <div class="snn-editor-header">
-                    <input type="text" id="snn-note-title" class="snn-note-title" placeholder="Untitled Note" />
+                    <input type="text" id="snn-note-title" class="snn-note-title" placeholder="<?php esc_attr_e('Untitled Note', 'snn-notes'); ?>" />
                     <div class="snn-editor-actions">
                         <div id="snn-note-tags" class="snn-note-tags"></div>
                         <button id="snn-save-note-btn" class="snn-btn snn-btn-success">
-                            <span class="dashicons dashicons-saved"></span> Save
+                            <span class="dashicons dashicons-saved"></span> <?php _e('Save', 'snn-notes'); ?>
                         </button>
                         <button id="snn-delete-note-btn" class="snn-btn snn-btn-danger">
                             <span class="dashicons dashicons-trash"></span>
@@ -86,16 +86,16 @@ if (!defined('ABSPATH')) {
 <div id="snn-tag-modal" class="snn-modal" style="display: none;">
     <div class="snn-modal-content">
         <div class="snn-modal-header">
-            <h3>Create New Tag</h3>
+            <h3><?php _e('Create New Tag', 'snn-notes'); ?></h3>
             <button class="snn-modal-close">&times;</button>
         </div>
         <div class="snn-modal-body">
             <div class="snn-form-group">
-                <label for="snn-tag-name">Tag Name</label>
-                <input type="text" id="snn-tag-name" class="snn-input" placeholder="Enter tag name" />
+                <label for="snn-tag-name"><?php _e('Tag Name', 'snn-notes'); ?></label>
+                <input type="text" id="snn-tag-name" class="snn-input" placeholder="<?php esc_attr_e('Enter tag name', 'snn-notes'); ?>" />
             </div>
             <div class="snn-form-group">
-                <label for="snn-tag-color">Tag Color</label>
+                <label for="snn-tag-color"><?php _e('Tag Color', 'snn-notes'); ?></label>
                 <div class="snn-color-picker">
                     <input type="color" id="snn-tag-color" class="snn-color-input" value="#3b82f6" />
                     <span class="snn-color-preview"></span>
@@ -103,8 +103,8 @@ if (!defined('ABSPATH')) {
             </div>
         </div>
         <div class="snn-modal-footer">
-            <button id="snn-tag-cancel-btn" class="snn-btn snn-btn-secondary">Cancel</button>
-            <button id="snn-tag-create-btn" class="snn-btn snn-btn-primary">Create Tag</button>
+            <button id="snn-tag-cancel-btn" class="snn-btn snn-btn-secondary"><?php _e('Cancel', 'snn-notes'); ?></button>
+            <button id="snn-tag-create-btn" class="snn-btn snn-btn-primary"><?php _e('Create Tag', 'snn-notes'); ?></button>
         </div>
     </div>
 </div>

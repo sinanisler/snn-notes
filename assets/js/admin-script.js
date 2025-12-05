@@ -291,7 +291,8 @@
                 },
                 success: function (response) {
                     if (response.success) {
-                        allNotes = response.data;
+                        // Handle new response format {notes: [], total: X, pages: X}
+                        allNotes = response.data.notes || response.data;
                         self.renderNotes();
                     }
                 }
