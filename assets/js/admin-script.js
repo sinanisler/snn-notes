@@ -133,6 +133,17 @@
                     self.addTagToNote(parseInt(tagId));
                 }
             });
+
+            // Ctrl+S / Cmd+S keyboard shortcut for saving
+            $(document).on('keydown', function (e) {
+                // Check for Ctrl+S (Windows/Linux) or Cmd+S (Mac)
+                if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                    e.preventDefault(); // Prevent browser's save dialog
+                    if (currentNoteId) {
+                        self.saveNote();
+                    }
+                }
+            });
         },
 
         initDragAndDrop: function () {

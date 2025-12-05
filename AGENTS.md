@@ -444,6 +444,20 @@ quillEditor = new Quill('#snn-quill-editor', {
 - `dragleave` - Removes `.drag-over` class
 - `drop` - Calls `addTagToNote()` or `addTagToSpecificNote()`
 
+### Keyboard Shortcuts
+
+**Save Note:**
+- **Windows/Linux**: `Ctrl+S`
+- **Mac**: `Cmd+S`
+- **Behavior**: Saves the currently open note, prevents default browser save dialog
+- **Condition**: Only triggers if a note is currently loaded (`currentNoteId` exists)
+
+**Implementation Details:**
+- Event listener: `$(document).on('keydown', ...)`
+- Checks `e.ctrlKey` (Windows/Linux) or `e.metaKey` (Mac)
+- Calls `e.preventDefault()` to stop browser save dialog
+- Executes `self.saveNote()` when conditions are met
+
 ---
 
 ## Development Guidelines
