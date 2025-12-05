@@ -1,0 +1,661 @@
+/* SNN Notes - Compact Modern Design */
+:root {
+    --snn-primary: #3b82f6;
+    --snn-primary-hover: #2563eb;
+    --snn-success: #10b981;
+    --snn-success-hover: #059669;
+    --snn-danger: #ef4444;
+    --snn-danger-hover: #dc2626;
+    --snn-secondary: #6b7280;
+    --snn-bg-main: #ffffff;
+    --snn-bg-sidebar: #f9fafb;
+    --snn-bg-hover: #f3f4f6;
+    --snn-border: #e5e7eb;
+    --snn-text: #111827;
+    --snn-text-secondary: #6b7280;
+    --snn-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    --snn-shadow-lg: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+.snn-notes-wrapper {
+    display: flex;
+    height: calc(100vh - 32px);
+    background: var(--snn-bg-main);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+    line-height: 1.6;
+    margin: 0 -20px 0 -10px;
+    position: relative;
+}
+
+/* Sidebar Styles */
+.snn-sidebar {
+    width: 280px;
+    background: var(--snn-bg-sidebar);
+    border-right: 1px solid var(--snn-border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: margin-left 0.3s ease;
+}
+
+.snn-sidebar.collapsed {
+    margin-left: -280px;
+}
+
+.snn-sidebar-header {
+    padding: 8px;
+    border-bottom: 1px solid var(--snn-border);
+    flex-shrink: 0;
+}
+
+.snn-section {
+    flex-shrink: 0;
+    border-bottom: 1px solid var(--snn-border);
+}
+
+.snn-section-header {
+    padding: 6px 8px;
+    cursor: pointer;
+    user-select: none;
+    background: var(--snn-bg-sidebar);
+    transition: background 0.2s;
+}
+
+.snn-section-header:hover {
+    background: var(--snn-bg-hover);
+}
+
+.snn-section-title {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--snn-text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.snn-collapse-icon {
+    font-size: 14px;
+    transition: transform 0.2s;
+}
+
+.snn-section.collapsed .snn-collapse-icon {
+    transform: rotate(-90deg);
+}
+
+.snn-section-content {
+    max-height: 400px;
+    overflow-y: auto;
+    transition: max-height 0.3s ease;
+}
+
+.snn-section.collapsed .snn-section-content {
+    max-height: 0;
+    overflow: hidden;
+}
+
+.snn-section:last-of-type .snn-section-content {
+    flex: 1;
+    max-height: none;
+}
+
+/* Buttons */
+.snn-btn {
+    padding: 4px 8px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    line-height: 1.6;
+}
+
+.snn-btn .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+}
+
+.snn-btn-block {
+    width: 100%;
+    justify-content: center;
+    margin-bottom: 4px;
+}
+
+.snn-btn-primary {
+    background: var(--snn-primary);
+    color: white;
+}
+
+.snn-btn-primary:hover {
+    background: var(--snn-primary-hover);
+}
+
+.snn-btn-secondary {
+    background: var(--snn-secondary);
+    color: white;
+}
+
+.snn-btn-secondary:hover {
+    background: #4b5563;
+}
+
+.snn-btn-success {
+    background: var(--snn-success);
+    color: white;
+}
+
+.snn-btn-success:hover {
+    background: var(--snn-success-hover);
+}
+
+.snn-btn-danger {
+    background: var(--snn-danger);
+    color: white;
+}
+
+.snn-btn-danger:hover {
+    background: var(--snn-danger-hover);
+}
+
+/* Tags List */
+.snn-tags-list {
+    padding: 4px;
+}
+
+.snn-tag-item {
+    display: flex;
+    align-items: center;
+    padding: 3px 6px;
+    margin-bottom: 2px;
+    border-radius: 4px;
+    cursor: grab;
+    transition: background 0.2s;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.snn-tag-item:hover {
+    background: var(--snn-bg-hover);
+}
+
+.snn-tag-item.dragging {
+    opacity: 0.5;
+    cursor: grabbing;
+}
+
+.snn-tag-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    margin-right: 6px;
+    flex-shrink: 0;
+}
+
+.snn-tag-name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 12px;
+}
+
+.snn-tag-count {
+    font-size: 11px;
+    color: var(--snn-text-secondary);
+    margin-left: 4px;
+}
+
+.snn-tag-delete {
+    opacity: 0;
+    padding: 0;
+    width: 16px;
+    height: 16px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: var(--snn-danger);
+    transition: opacity 0.2s;
+}
+
+.snn-tag-item:hover .snn-tag-delete {
+    opacity: 1;
+}
+
+.snn-tag-delete .dashicons {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+}
+
+/* Notes List */
+.snn-notes-list {
+    padding: 4px;
+}
+
+.snn-note-item {
+    padding: 6px 8px;
+    margin-bottom: 2px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s;
+    border-left: 3px solid transparent;
+}
+
+.snn-note-item:hover {
+    background: var(--snn-bg-hover);
+}
+
+.snn-note-item.active {
+    background: var(--snn-bg-hover);
+    border-left-color: var(--snn-primary);
+}
+
+.snn-note-item-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--snn-text);
+    margin-bottom: 2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 1.6;
+}
+
+.snn-note-item-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: var(--snn-text-secondary);
+    gap: 4px;
+    line-height: 1.6;
+}
+
+.snn-note-item-excerpt {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.snn-note-item-date {
+    flex-shrink: 0;
+}
+
+.snn-note-item-tags {
+    display: flex;
+    gap: 2px;
+    margin-top: 3px;
+    flex-wrap: wrap;
+}
+
+.snn-note-item-tag {
+    display: inline-block;
+    padding: 1px 4px;
+    border-radius: 2px;
+    font-size: 10px;
+    color: white;
+    line-height: 1.4;
+}
+
+/* Toggle Sidebar Button */
+.snn-toggle-sidebar {
+    position: absolute;
+    top: 8px;
+    right: -12px;
+    width: 24px;
+    height: 24px;
+    border: 1px solid var(--snn-border);
+    background: var(--snn-bg-main);
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    z-index: 10;
+}
+
+.snn-toggle-sidebar:hover {
+    background: var(--snn-bg-hover);
+}
+
+.snn-toggle-sidebar .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    transition: transform 0.3s;
+}
+
+.snn-sidebar.collapsed .snn-toggle-sidebar .dashicons {
+    transform: rotate(180deg);
+}
+
+/* Main Editor Area */
+.snn-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: margin-left 0.3s ease;
+}
+
+.snn-sidebar.collapsed ~ .snn-main {
+    margin-left: 0;
+}
+
+.snn-editor-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Welcome Screen */
+.snn-welcome-screen {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--snn-bg-main);
+}
+
+.snn-welcome-content {
+    text-align: center;
+    color: var(--snn-text-secondary);
+}
+
+.snn-welcome-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    margin-bottom: 16px;
+    opacity: 0.3;
+}
+
+.snn-welcome-content h2 {
+    font-size: 24px;
+    margin: 0 0 8px 0;
+    color: var(--snn-text);
+}
+
+.snn-welcome-content p {
+    font-size: 14px;
+    margin: 0;
+}
+
+/* Note Editor */
+.snn-note-editor {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.snn-editor-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--snn-border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.snn-note-title {
+    flex: 1;
+    border: none;
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--snn-text);
+    outline: none;
+    padding: 4px;
+    background: transparent;
+    line-height: 1.6;
+}
+
+.snn-note-title:focus {
+    background: var(--snn-bg-hover);
+    border-radius: 4px;
+}
+
+.snn-editor-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.snn-note-tags {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    min-height: 24px;
+    padding: 4px;
+    border: 1px dashed var(--snn-border);
+    border-radius: 4px;
+    min-width: 120px;
+}
+
+.snn-note-tags.drag-over {
+    background: var(--snn-bg-hover);
+    border-color: var(--snn-primary);
+}
+
+.snn-note-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 11px;
+    color: white;
+    gap: 4px;
+    line-height: 1.6;
+}
+
+.snn-note-tag-remove {
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.snn-note-tag-remove:hover {
+    opacity: 1;
+}
+
+.snn-editor-meta {
+    padding: 4px 16px;
+    font-size: 12px;
+    color: var(--snn-text-secondary);
+    display: flex;
+    gap: 12px;
+    border-bottom: 1px solid var(--snn-border);
+    line-height: 1.6;
+}
+
+.snn-save-status {
+    color: var(--snn-success);
+}
+
+/* Quill Editor */
+.snn-quill-editor {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.snn-quill-editor .ql-container {
+    flex: 1;
+    overflow-y: auto;
+    font-size: 15px;
+    line-height: 1.8;
+}
+
+.snn-quill-editor .ql-toolbar {
+    border-left: none;
+    border-right: none;
+    border-top: none;
+    padding: 8px;
+}
+
+.snn-quill-editor .ql-editor {
+    padding: 16px;
+}
+
+.snn-quill-editor .ql-editor.ql-blank::before {
+    font-style: normal;
+    color: var(--snn-text-secondary);
+}
+
+/* Modal Styles */
+.snn-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100000;
+}
+
+.snn-modal-content {
+    background: var(--snn-bg-main);
+    border-radius: 8px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: var(--snn-shadow-lg);
+}
+
+.snn-modal-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--snn-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.snn-modal-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.6;
+}
+
+.snn-modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--snn-text-secondary);
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    line-height: 1;
+}
+
+.snn-modal-body {
+    padding: 16px;
+}
+
+.snn-modal-footer {
+    padding: 12px 16px;
+    border-top: 1px solid var(--snn-border);
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.snn-form-group {
+    margin-bottom: 12px;
+}
+
+.snn-form-group label {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--snn-text);
+    line-height: 1.6;
+}
+
+.snn-input {
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid var(--snn-border);
+    border-radius: 4px;
+    font-size: 14px;
+    line-height: 1.6;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.snn-input:focus {
+    border-color: var(--snn-primary);
+}
+
+.snn-color-picker {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.snn-color-input {
+    width: 60px;
+    height: 32px;
+    border: 1px solid var(--snn-border);
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.snn-color-preview {
+    flex: 1;
+    height: 32px;
+    border-radius: 4px;
+    border: 1px solid var(--snn-border);
+}
+
+/* Scrollbar Styles */
+.snn-section-content::-webkit-scrollbar,
+.ql-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.snn-section-content::-webkit-scrollbar-track,
+.ql-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.snn-section-content::-webkit-scrollbar-thumb,
+.ql-container::-webkit-scrollbar-thumb {
+    background: var(--snn-border);
+    border-radius: 4px;
+}
+
+.snn-section-content::-webkit-scrollbar-thumb:hover,
+.ql-container::-webkit-scrollbar-thumb:hover {
+    background: var(--snn-secondary);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .snn-sidebar {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        z-index: 10;
+    }
+}
